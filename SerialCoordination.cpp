@@ -1,57 +1,16 @@
-#include "plumed/colvar/Colvar.h"
-#include "plumed/core/ActionRegister.h"
-#include "plumed/tools/Communicator.h"
-#include "plumed/tools/NeighborList.h"
-#include "plumed/tools/OpenMP.h"
-#include <iostream>
-#include <memory>
-
+#include "Base.hpp"
 namespace PLMD {
-
-class MyCoordination : public colvar::Colvar {
-  double R_0;
-  bool pbc{true};
-
+class MyCoordination : public MyCoordinationBase {
 public:
-  explicit MyCoordination(const ActionOptions &);
+  explicit MyCoordination(const ActionOptions &ao)
+      : Action(ao), MyCoordinationBase(ao) {}
   ~MyCoordination() = default;
   // active methods:
   void calculate() override;
-  static void registerKeywords(Keywords &keys);
 };
 
 PLUMED_REGISTER_ACTION(MyCoordination, "MYCOORDINATION")
 
-void MyCoordination::registerKeywords(Keywords &keys) {
-  Colvar::registerKeywords(keys);
-  keys.add("compulsory", "R_0",
-           "The distance under which calculate neighbours");
-  keys.add("atoms", "ATOMS", "First list of atoms");
-}
-
-MyCoordination::MyCoordination(const ActionOptions &ao)
-    : PLUMED_COLVAR_INIT(ao) {
-
-  std::vector<AtomNumber> ga_lista;
-  parseAtomList("ATOMS", ga_lista);
-
-  bool nopbc = !pbc;
-  parseFlag("NOPBC", nopbc);
-  pbc = !nopbc;
-
-  parse("R_0", R_0);
-
-  addValue();
-  setNotPeriodic();
-  requestAtoms(ga_lista);
-
-  if (pbc)
-    log.printf("  using periodic boundary conditions\n");
-  else
-    log.printf("  without periodic boundary conditions\n");
-}
-
-// calculator
 void MyCoordination::calculate() {
   double ncoord = 0.;
   auto pos = getPositions();

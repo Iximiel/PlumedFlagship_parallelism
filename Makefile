@@ -1,6 +1,8 @@
 
 .PHONY: all small big
 
+.NOTINTERMEDIATE: OMPCoordination.so SerialCoordination.so MPIOMPCoordination.so
+
 all: small big
 
 big: Serial_big OMP_big
