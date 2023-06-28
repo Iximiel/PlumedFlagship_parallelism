@@ -1,0 +1,5 @@
+*colvar
+*.o
+*.so
+*.bk
+.vscode/
