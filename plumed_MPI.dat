@@ -1,0 +1,5 @@
+LOAD FILE=./MPICoordination.so
+
+c: MYCOORDINATION ATOMS=@mdatoms R_0=1.2
+PRINT ARG=c FILE=MPI_colvar FMT=%2.1f STRIDE=1
+FLUSH STRIDE=1
