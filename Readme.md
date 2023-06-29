@@ -8,4 +8,6 @@ We have some simple examples for using parallelism in plumed:
 
 (The original `Coordination` uses both openMP and MPI)
 
-Plumed helps the developer with some tools for parallelism
+Plumed helps the developer with some tools for parallelism:
+- `tools/OpenMP.h` contains some function that are useful in working with openMP
+- `tools/Communicator.h` is more or less always present as the variable `comm` that is inherited through `PLMD::Action`

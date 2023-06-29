@@ -42,6 +42,9 @@ cleanbk:
 clean: cleanbk
 	@rm -vf *.o *.so *.out
 
+veryclean: clean
+	@rm -vf *_colvar
+
 plumed-nvcc-mklib:
 	cp $${PLUMED_KERNEL%libplumedKernel.so}plumed/plumed-mklib $@
 	sed -i 's%source "$$PLUMED_ROOT"/scripts/mklib.sh%source "nvcc-mklib.sh"%' $@ 
