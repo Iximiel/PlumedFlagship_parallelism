@@ -1,5 +1,5 @@
 LOAD FILE=./@type@Coordination.so
 
-c: MYCOORDINATION ATOMS=@mdatoms R_0=1.2
+c: MYCOORDINATION ATOMS=@mdatoms R_0=1.2 NOPBC
 PRINT ARG=c FILE=@type@_colvar FMT=%2.1f STRIDE=1
 FLUSH STRIDE=1

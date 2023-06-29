@@ -1,6 +1,5 @@
 #include "plumed/colvar/Colvar.h"
 #include "plumed/core/ActionRegister.h"
-#include "plumed/tools/Communicator.h"
 #include "plumed/tools/NeighborList.h"
 #include "plumed/tools/OpenMP.h"
 #include <iostream>

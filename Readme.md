@@ -7,3 +7,5 @@ We have some simple examples for using parallelism in plumed:
 - `MPICoordination.cpp` is an example on how MPI can be used in Plumed
 
 (The original `Coordination` uses both openMP and MPI)
+
+Plumed helps the developer with some tools for parallelism
