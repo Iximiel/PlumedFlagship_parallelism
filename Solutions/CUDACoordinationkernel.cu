@@ -61,8 +61,6 @@ double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
 
   double Rsqr = R_0 * R_0;
   cudakernel<<<nat, 1>>>(d_data, ncoords, nat, Rsqr);
-  std::vector<double> allxyz(nat);
-
   reduction<<<1, nexpw2 / 2>>>(ncoords, nat);
   double result;
   cudaMemcpy(&result, ncoords, sizeof(double), cudaMemcpyDeviceToHost);
