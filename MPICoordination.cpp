@@ -16,9 +16,12 @@ void MyCoordination::calculate() {
   auto pos = getPositions();
   const unsigned nn = pos.size();
 
+  // We are using the number of processes as the stride for the iterations in
+  // the for loop
   unsigned stride = comm.Get_size();
+  // the id of the actual process
   unsigned rank = comm.Get_rank();
-  // std::cerr << stride << std::endl;
+
   Vector distance;
   for (unsigned int i0 = rank; i0 < nn; i0 += stride) {
     for (unsigned int i1 = 0; i1 < nn; ++i1) {
@@ -32,6 +35,7 @@ void MyCoordination::calculate() {
     }
   }
   if (stride > 1) {
+    // this will summ the value of ncoord along all the processes
     comm.Sum(ncoord);
   }
   setValue(ncoord);

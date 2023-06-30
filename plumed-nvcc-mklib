@@ -1,9 +1,0 @@
-#! /usr/bin/env bash
-echo 'NOTE: shell only version, useful when plumed is cross compiled' >&2
-export PLUMED_IS_INSTALLED=yes
-export PLUMED_ROOT="${PLUMED_ROOT-/scratch/drapetti/repos/plumedInstallMPI/lib/plumed}"
-export PLUMED_INCLUDEDIR="${PLUMED_INCLUDEDIR-/scratch/drapetti/repos/plumedInstallMPI/include}"
-export PLUMED_HTMLDIR="${PLUMED_HTMLDIR=/scratch/drapetti/repos/plumedInstallMPI/share/doc/plumed}"
-export PLUMED_PROGRAM_NAME="${PLUMED_PROGRAM_NAME-plumed}"
-export PLUMED_VERSION=2.10.0-dev
-source "nvcc-mklib.sh"

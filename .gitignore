@@ -4,3 +4,4 @@
 *.bk
 .vscode/
 *.out
+plumed-nvcc-mklib
