@@ -35,7 +35,7 @@ void MyCoordination::calculate() {
     }
   }
   if (stride > 1) {
-    // this will summ the value of ncoord along all the processes
+    // this will sum the value of ncoord along all the processes
     comm.Sum(ncoord);
   }
   setValue(ncoord);

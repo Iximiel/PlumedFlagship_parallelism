@@ -4,21 +4,21 @@
 #include "CUDACoordinationkernel.hpp"
 #include <iostream>
 
-__global__ void cudakernel(double *buf, double *trt, unsigned Nat,
-                           double Rsqr) {
-  const int i = threadIdx.x + blockIdx.x * blockDim.x;
-  double x = buf[3 * i];
-  double y = buf[3 * i + 1];
-  double z = buf[3 * i + 2];
+__global__ void getCoord(double *coordinates, double *trt, unsigned Nat,
+                         double Rsqr) {
+  const int i = threadIdx.x + blockIdx.x;
+  double x = coordinates[3 * i];
+  double y = coordinates[3 * i + 1];
+  double z = coordinates[3 * i + 2];
   trt[i] = 0.0;
   double dx, dy, dz;
   for (unsigned j = 0; j < Nat; j++) {
     if (i == j) {
       continue;
     }
-    dx = x - buf[3 * j];
-    dy = y - buf[3 * j + 1];
-    dz = z - buf[3 * j + 2];
+    dx = x - coordinates[3 * j];
+    dy = y - coordinates[3 * j + 1];
+    dz = z - coordinates[3 * j + 2];
     if ((dx * dx + dy * dy + dz * dz) < Rsqr) {
       trt[i] += 1.0;
     }
@@ -56,7 +56,7 @@ double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
   }
 
   double Rsqr = R_0 * R_0;
-  cudakernel<<<nat, 1>>>(d_data, ncoords, nat, Rsqr);
+  getCoord<<<nat, 1>>>(d_data, ncoords, nat, Rsqr);
   reduction<<<1, nat / 2>>>(ncoords);
   double result;
   cudaMemcpy(&result, ncoords, sizeof(double), cudaMemcpyDeviceToHost);
