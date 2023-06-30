@@ -108,7 +108,8 @@ Then we have the next pragma instruction: ``#pragma omp for`: this pragma will t
 
 <details>
   <summary>SPOILER</summary>
-  There is at least a race condition here: can you spot it?
+
+ There is at least a race condition here: can you spot it?
 
 <details>
     <summary>ANSWER</summary>
@@ -154,7 +155,7 @@ We have then the problem of obtaining the correct result: we have to set `ncoord
 To do the sum we use the Plumed mpi inteface: `comm.Sum(ncoord);` this will call the reduction sum algorithm of the MPI library with no complications.
 
 ## EXTRA: GPU offloading with Cuda
-To get the cuda compiler compilated I set up an ad hoc alternative to `plumed mklib`, that uses nvcc to compile the kernel and to link the shared object.
+To get the cuda compiler compilated I set up an ad hoc alternative to `plumed mklib`, that uses nvcc to compile the kernel and to link the shared object. The example is extremely simplified and should not be used in the real world as is.
 
 ```C++
 void MyCoordination::calculate() {
@@ -192,17 +193,17 @@ there the data is initialized on the GPU with a combination of `cudaMalloc` and 
 Citing the Nvidia block:
 >A group of threads is called a CUDA block. CUDA blocks are grouped into a grid. A kernel is executed as a grid of blocks of threads
 
-Each thread execute the instructions in the kernel and shares informations with the other threads in the block
+Each thread execute the instructions in the kernel.
 
-in this case we have a kernel for calculation the ncoord of each atom:
+In this case we have a kernel for calculation the ncoord of each atom:
 ```C
-__global__ void getCoord(double *coordinates, double *trt, unsigned Nat,
-                         double Rsqr) {
-  const int i = threadIdx.x + blockIdx.x;
+__global__ void getCoord(double *coordinates, double *coordination,
+                         unsigned Nat, double Rsqr) {
+  const int i = threadIdx.x + blockIdx.x; // * blockDim.x;
   double x = coordinates[3 * i];
   double y = coordinates[3 * i + 1];
   double z = coordinates[3 * i + 2];
-  trt[i] = 0.0;
+  coordination[i] = 0.0;
   double dx, dy, dz;
   for (unsigned j = 0; j < Nat; j++) {
     if (i == j) {
@@ -212,8 +213,51 @@ __global__ void getCoord(double *coordinates, double *trt, unsigned Nat,
     dy = y - coordinates[3 * j + 1];
     dz = z - coordinates[3 * j + 2];
     if ((dx * dx + dy * dy + dz * dz) < Rsqr) {
-      trt[i] += 1.0;
+      coordination[i] += 1.0;
     }
   }
 }
 ```
+You have to imagine that the kernel is more or less the body of the outer for loop of the previous examples and to get the outer index you have to check in which thread you are: `threadIdx` and `blockIdx` that contains the information about the index of the thread or of the block. In this case the kernel is called as a block of `nat` threads (and that is a very bad idea, since `nat` may be not a power of 2 or be bigger than the maximum number of thread avaiable in the gpu).
+
+<details>
+  <summary>EXTRA REMARKS</summary>
+  
+Also the kernel is made in order that can be called with `<<<1, nat>>>` or `<<<nat, 1>>>` without any error, due to the index bein calculated always as a sum `const int i = threadIdx.x + blockIdx.x;` that is 0+something if the threads or the blocks are 1.
+</details>
+
+Then the coordination must be summed (in a very simple case like this it may be faster doing the process in for loop on the cpu) with a reduction algorithm:
+```C
+__global__ void reduction(double *input) {
+  const int tid = threadIdx.x;
+  auto step_size = 1;
+  int number_of_threads = blockDim.x;
+  while (number_of_threads > 0) {
+    if (tid < number_of_threads) {// still alive?
+      const auto fst = tid * step_size * 2;
+      const auto snd = fst + step_size;
+      input[fst] += input[snd];
+    }
+    step_size <<= 1;//multiplies by 2
+    number_of_threads >>= 1;//divides by 2
+  }
+}
+```
+`blockDim` contains the number of thread in the block
+
+The sum is made in pair to each element of the passed array. And the operation is repeaded on half of the array, and so on until we are reduced to one element that is the result.
+
+Visually the operation is the following:
+<!-- source: https://riptutorial.com/cuda/topic/6566/parallel-reduction--e-g--how-to-sum-an-array-  -->
+<img src="./Imgs/reduction.png" alt= “” width="50%">
+
+<details>
+  <summary>HOMEWORK</summary>
+
+the reduction algorithm does not return the correct result: why?
+
+</details>
+
+## Closing information
+
+In the `Solution` folder there are working codes that give the correct results
