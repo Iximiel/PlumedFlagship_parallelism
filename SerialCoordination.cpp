@@ -16,18 +16,16 @@ void MyCoordination::calculate() {
   auto pos = getPositions();
   const unsigned nn = pos.size();
 
+  Vector distance;
   for (unsigned int i0 = 0; i0 < nn; ++i0) {
     for (unsigned int i1 = 0; i1 < nn; ++i1) {
-      Vector distance;
 
-      if (i0 == i1)
+      if (i0 == i1) {
         continue;
-
-      if (pbc) {
-        distance = pbcDistance(getPosition(i0), getPosition(i1));
-      } else {
-        distance = delta(getPosition(i0), getPosition(i1));
       }
+
+      distance = delta(getPosition(i0), getPosition(i1));
+
       ncoord += (distance.modulo() < R_0) ? 1 : 0;
     }
   }
