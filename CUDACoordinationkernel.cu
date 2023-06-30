@@ -25,11 +25,8 @@ __global__ void cudakernel(double *buf, double *trt, unsigned Nat,
   }
 }
 
-__global__ void reduction(double *input, int nat) {
+__global__ void reduction(double *input) {
   const int tid = threadIdx.x;
-  if (tid > nat) {
-    input[tid] = 0;
-  }
 
   auto step_size = 1;
   int number_of_threads = blockDim.x;
@@ -49,11 +46,10 @@ __global__ void reduction(double *input, int nat) {
 
 double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
   auto nat = positions.size();
-  size_t nexpw2 = pow(2, ceil(log2(nat)));
   double *d_data;
   double *ncoords;
   cudaMalloc(&d_data, 3 * nat * sizeof(double));
-  cudaMalloc(&ncoords, nexpw2 * sizeof(double));
+  cudaMalloc(&ncoords, nat * sizeof(double));
   for (size_t i = 0; i < nat; i++) {
     cudaMemcpy(d_data + i * 3, &positions[i][0], 3 * sizeof(double),
                cudaMemcpyHostToDevice);
@@ -61,9 +57,7 @@ double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
 
   double Rsqr = R_0 * R_0;
   cudakernel<<<nat, 1>>>(d_data, ncoords, nat, Rsqr);
-  std::vector<double> allxyz(nat);
-
-  reduction<<<1, nexpw2 / 2>>>(ncoords, nat);
+  reduction<<<1, nat / 2>>>(ncoords);
   double result;
   cudaMemcpy(&result, ncoords, sizeof(double), cudaMemcpyDeviceToHost);
 
