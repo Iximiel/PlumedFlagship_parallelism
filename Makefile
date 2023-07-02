@@ -5,6 +5,13 @@
 
 all: small big
 
+diff: diff_small diff_big
+
+diff_%: %
+	@diff -y --suppress-common-lines Serial_$*_colvar OMP_$*_colvar && echo "OMP $* is ok!" || echo "OMP $* differ!"
+	@diff -y --suppress-common-lines Serial_$*_colvar MPI_$*_colvar && echo "MPI $* is ok!" || echo "MPI $* differ!"
+	@diff -y --suppress-common-lines Serial_$*_colvar CUDA_$*_colvar && echo "Cuda $* is ok!" || echo "Cuda $* differ!"
+
 big: Serial_big OMP_big MPI_big CUDA_big
 
 small: Serial_small OMP_small MPI_small CUDA_small
