@@ -60,4 +60,4 @@ For automation purposes (see the `Makefile`) we are using the same key `PLUMED_R
 
 ## Closing information
 
-In the `Solution` folder there are working codes that give the correct results
+The file in the `Solution` directory give the correct results
