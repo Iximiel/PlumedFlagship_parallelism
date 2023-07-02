@@ -40,7 +40,7 @@ Citing the Nvidia blog:
 
 Each thread execute the instructions in the kernel.
 
-In this case we have a kernel for calculation the ncoord of each atom:
+In this case we have a kernel for calculation the `ncoord` value of each atom:
 ```C
 __global__ void getCoord(double *coordinates, double *coordination,
                          unsigned Nat, double Rsqr) {
