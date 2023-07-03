@@ -18,9 +18,9 @@ diff_big_%: %_big_colvar Serial_big_colvar
 	@diff -y --suppress-common-lines Serial_big_colvar $*_big_colvar && echo "$* big is ok!" || echo "$* big differ!"
 
 
-big: Serial_big_colvar OMP_big_colvar MPI_big_colvar CUDA_big
+big: Serial_big_colvar OMP_big_colvar MPI_big_colvar CUDA_big_colvar
 
-small: Serial_small_colvar OMP_small_colvar MPI_small_colvar CUDA_small
+small: Serial_small_colvar OMP_small_colvar MPI_small_colvar CUDA_small_colvar
 
 plumed_%.dat:plumed.dat.in
 	@sed 's/@type@/$*/g' plumed.dat.in > $@
@@ -49,14 +49,16 @@ CUDACoordination.so:CUDACoordinationkernel.cu CUDACoordination.cpp plumed-nvcc-m
 %.so:%.cpp
 	plumed mklib $<
 
+cleancolvar:
+	@rm -vf *_colvar
+
 cleanbk:
 	@rm -vf bck.*	
 
 clean: cleanbk
 	@rm -vf *.o *.so *.out
 
-veryclean: clean
-	@rm -vf *_colvar
+veryclean: clean cleancolvar
 
 plumed-nvcc-mklib:
 	cp $${PLUMED_KERNEL%libplumedKernel.so}plumed/plumed-mklib $@
