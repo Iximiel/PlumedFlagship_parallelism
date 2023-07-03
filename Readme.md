@@ -37,7 +37,7 @@ public:
 };
 PLUMED_REGISTER_ACTION(MyCoordination, "MYCOORDINATION")
 void MyCoordination::calculate() {
-...code goes...
+...code goes here...
 }
 } // namespace PLMD
 

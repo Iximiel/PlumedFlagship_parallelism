@@ -25,9 +25,9 @@ This is nearly identical to the serial version. With few differences:
 We are asking the system if we want to run with more threads with `unsigned nt = OpenMP::getNumThreads()`, (if is the first time that it is called stores and return the number in the environmental variable `PLUMED_NUM_THREADS`, otherwise it will return the stored number).
 
 Then with that information we open a parallel environment with `#pragma omp parallel num_threads(nt)` in which we explicilty specify the number of threads (otherwise il will use the number in the environmntal variable `OMP_NUM_THREADS`).
-Note that the pragma is prepended to a scope delimited by curly braces: the code there will be distribuited between threads.
+Note that the pragma is prepended to a scope delimited by curly braces: the code within them will be distribuited between the threads.
 
-Then we have the next pragma instruction: ``#pragma omp for`: this pragma will tranform the for in order to make it work in the multithreaded environment. We are splitting the for cycle in each thread
+Then we have the next pragma instruction: `#pragma omp for`: this pragma will tranform the `for` in order to make it work in the multithreaded environment.
 
 <details>
   <summary>SPOILER</summary>

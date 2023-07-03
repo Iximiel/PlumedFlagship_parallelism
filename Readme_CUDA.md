@@ -9,7 +9,7 @@ void MyCoordination::calculate() {
   setValue(ncoord);
 }
 ```
-it calls `getCoordination(pos, R_0);`, that is an interface to the kernel:
+it calls `getCoordination(pos, R_0)`, that is an interface to the kernel:
 ```C++
 double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
   auto nat = positions.size();
@@ -33,10 +33,10 @@ double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
   return result;
 }
 ```
-there the data is initialized and loaded on the GPU with a combination of `cudaMalloc` and `cudaMemcpy` and then the two kernels are called with the `<<<Nblocks,threadperblock>>>` syntax.
+there the data is initialized and loaded on the GPU with a combination of `cudaMalloc` and `cudaMemcpy` and then the two kernels are called with the `<<<NBlocks,threadPerBlock>>>` syntax.
 
 Citing the Nvidia blog:
->A group of threads is called a CUDA block. CUDA blocks are grouped into a grid. A kernel is executed as a grid of blocks of threads
+>A group of threads is called a CUDA block. CUDA blocks are grouped into a grid. A kernel is executed as a grid of blocks of threads.
 
 Each thread execute the instructions in the kernel.
 
@@ -90,7 +90,7 @@ __global__ void reduction(double *input) {
 ```
 `blockDim` contains the number of thread in the block
 
-The sum is made in pair to each element of the passed array. And the operation is repeaded on half of the array, and so on until we are reduced to one element that is the result.
+The sum is made in pair to each element of the passed array and stored in one of the two used indexes of the array. And the operation is repeaded on half of the array, and so on until we are reduced to one element that is the result.
 
 Visually the operation is the following:
 <!-- source: https://riptutorial.com/cuda/topic/6566/parallel-reduction--e-g--how-to-sum-an-array-  -->

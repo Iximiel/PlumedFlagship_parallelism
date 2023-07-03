@@ -22,15 +22,15 @@ void MyCoordination::calculate() {
 ```
 
 In this case the parallelization strategy passes through parallel processes:
-with `unsigned rank = comm.Get_rank();` we inform the function wich is the this process, with `unsigned stride = comm.Get_size();` we want to know the number of processes that partecipate to the calculation.
+with `unsigned rank = comm.Get_rank()` we inform the function wich is the this process, with `unsigned stride = comm.Get_size()` we want to know the number of processes that partecipate to the calculation.
 
 The strategy here is to split the outer for cycle between the processes, so that each process will do only part of the loop. We are doing by hand what the `#pragma for` does behind the curtains in the threaded example.
-so that the original cycle `for (unsigned int i0 = 0; i0 < nn; ++i0)` became `for (unsigned int i0 = rank; i0 < nn; i0 += stride)`: `stride` ensures that the calculation won't overlap.
+The original cycle `for (unsigned int i0 = 0; i0 < nn; ++i0)` became `for (unsigned int i0 = rank; i0 < nn; i0 += stride)`: `stride` ensures that the calculation won't overlap.
 
-We have less risk of having a data race because all the variable are instantiated in each different processor, meaning that non only the for loop is executed in parallel but the whole calculation!
+We have less risk of having a data race because all the variable are instantiated for each different processor, meaning that non only the for loop is executed in parallel but that the change in data in a process won't affect other processes!
 
 We have then the problem of obtaining the correct result: we have to set `ncoord` to the sum of all the `ncoord` in the various processes.
-To do the sum we use the Plumed mpi inteface: `comm.Sum(ncoord);` this will call the reduction sum algorithm of the MPI library with no complications.
+To do this sum we use the Plumed mpi inteface: `comm.Sum(ncoord)` this will call the reduction sum algorithm of the MPI library with no complications.
 Plumed tools used:
 
 - `tools/Communicator.h` is present as the variable `comm` that is inherited through `PLMD::Action`.
