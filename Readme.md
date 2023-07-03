@@ -2,7 +2,7 @@
 
 We have some simple examples for using parallelism in plumed:
 
-- `SerialCoordination.cpp` is a simplified version of the cv `Coordination`
+- `SerialCoordination.cpp` is a ~~vandalized~~ simplified version of the cv `Coordination`
 - `OMPCoordination.cpp` is an example on how openMP can be used in Plumed
 - `MPICoordination.cpp` is an example on how MPI can be used in Plumed
 - `CUDACoordination.cpp` is an example on trying to user Cuda for solving this problem (it needs an ad hoc compiler queue and the kernel `CUDACoordinationkernel.cu` )
