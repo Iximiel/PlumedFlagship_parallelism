@@ -14,7 +14,7 @@ Plumed helps the developer with some tools for parallelism:
 In the example we are using `OpenMP::getNumThreads()` to get the number of threads from the environmental variable `PLUMED_NUM_THREADS`
 
 - `tools/Communicator.h` is present as the variable `comm` that is inherited through `PLMD::Action`.
-`PLMD::Communicator` is an interface to some of the functionalities of the C API of mpi.h
+`PLMD::Communicator` is an interface to some of the functionalities of the C API of `mpi.h`.
 In the example we are using `PLMD::Communicator::Get_size()` to get the number of the processes spawned by mpirun, 
 `PLMD::Communicator::Get_rank()` to get the id of the process, and 
 `PLMD::Communicator::Sum()` to sum the result of the coordination and make the correct value avayable for further calculations.
@@ -37,7 +37,7 @@ public:
 };
 PLUMED_REGISTER_ACTION(MyCoordination, "MYCOORDINATION")
 void MyCoordination::calculate() {
-...
+...code goes...
 }
 } // namespace PLMD
 

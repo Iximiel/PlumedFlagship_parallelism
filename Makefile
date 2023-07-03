@@ -1,39 +1,45 @@
 
 .PHONY: all small big clean cleanbk
 
-.NOTINTERMEDIATE: OMPCoordination.so SerialCoordination.so MPICoordination.so plumed_CUDA.dat
+.NOTINTERMEDIATE: OMPCoordination.so SerialCoordination.so MPICoordination.so plumed_CUDA.dat plumed_OMP.dat plumed_Serial.dat plumed_MPI.dat
 
 all: small big
 
 diff: diff_small diff_big
 
-diff_%: %
-	@diff -y --suppress-common-lines Serial_$*_colvar OMP_$*_colvar && echo "OMP $* is ok!" || echo "OMP $* differ!"
-	@diff -y --suppress-common-lines Serial_$*_colvar MPI_$*_colvar && echo "MPI $* is ok!" || echo "MPI $* differ!"
-	@diff -y --suppress-common-lines Serial_$*_colvar CUDA_$*_colvar && echo "Cuda $* is ok!" || echo "Cuda $* differ!"
+diff_small: diff_small_OMP diff_small_MPI diff_small_CUDA
 
-big: Serial_big OMP_big MPI_big CUDA_big
+diff_big: diff_big_OMP diff_big_MPI diff_big_CUDA
 
-small: Serial_small OMP_small MPI_small CUDA_small
+diff_small_%: %_small_colvar Serial_small_colvar
+	@diff -y --suppress-common-lines Serial_small_colvar $*_small_colvar && echo "$* small is ok!" || echo "$* small differ!"
+	
+diff_big_%: %_big_colvar Serial_big_colvar
+	@diff -y --suppress-common-lines Serial_big_colvar $*_big_colvar && echo "$* big is ok!" || echo "$* big differ!"
+
+
+big: Serial_big_colvar OMP_big_colvar MPI_big_colvar CUDA_big
+
+small: Serial_small_colvar OMP_small_colvar MPI_small_colvar CUDA_small
 
 plumed_%.dat:plumed.dat.in
 	@sed 's/@type@/$*/g' plumed.dat.in > $@
 
 .ONESHELL:
 #some tricks are involved in order to invoke mpirun only for the MPI set up, in order to avoid overhead
-%_small: %Coordination.so plumed_%.dat
+%_small_colvar: %Coordination.so plumed_%.dat
 	@[[ $* == "MPI" ]]  && prepend="mpirun -n 2 " || prepend=""
 	echo "$${prepend}plumed driver --plumed plumed_$*.dat --ixyz trajectorysmall.xyz > $@.out"
 	$$prepend plumed driver --plumed plumed_$*.dat --ixyz trajectorysmall.xyz > $@.out
-	@mv $*_colvar $@_colvar
+	@mv $*_colvar $@
 	@grep "PLUMED: 4 Calculating (forward loop)" $@.out | \
 	 awk '{printf "Time passed in calculate: %.3g ms in %i cycles (averaging %.3g ms)\n", $$7*1000, $$6, $$8*1000 }'
 
-%_big: %Coordination.so plumed_%.dat
+%_big_colvar: %Coordination.so plumed_%.dat
 	@[[ $* == "MPI" ]]  && prepend="mpirun -n 2 " || prepend=""
 	echo "$${prepend}plumed driver --plumed plumed_$*.dat --ixyz gas-one.xyz > $@.out"
 	$$prepend plumed driver --plumed plumed_$*.dat --ixyz gas-one.xyz > $@.out
-	@mv $*_colvar $@_colvar
+	@mv $*_colvar $@
 	@grep "PLUMED: 4 Calculating (forward loop)" $@.out | \
 		awk '{printf "Time passed in calculate: %.3g ms in %i cycles (averaging %.3g ms)\n", $$7*1000, $$6, $$8*1000 }'
 
