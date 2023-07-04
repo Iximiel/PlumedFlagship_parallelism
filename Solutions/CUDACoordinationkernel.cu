@@ -54,10 +54,13 @@ double getCoordination(std::vector<PLMD::Vector> positions, double R_0) {
   double *ncoords;
   cudaMalloc(&d_data, 3 * nat * sizeof(double));
   cudaMalloc(&ncoords, nexpw2 * sizeof(double));
+  cudaMemcpy(d_data , &positions[0][0], 3 *nat* sizeof(double),
+               cudaMemcpyHostToDevice);
+  /*
   for (size_t i = 0; i < nat; i++) {
     cudaMemcpy(d_data + i * 3, &positions[i][0], 3 * sizeof(double),
                cudaMemcpyHostToDevice);
-  }
+  }*/
 
   double Rsqr = R_0 * R_0;
   getCoord<<<nat, 1>>>(d_data, ncoords, nat, Rsqr);
